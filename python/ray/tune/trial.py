@@ -135,6 +135,7 @@ class Trial:
                  checkpoint_score_attr=TRAINING_ITERATION,
                  export_formats=None,
                  restore_path=None,
+                 warmstart_path=None,
                  trial_name_creator=None,
                  loggers=None,
                  sync_to_driver_fn=None,

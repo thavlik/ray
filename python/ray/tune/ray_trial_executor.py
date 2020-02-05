@@ -18,7 +18,7 @@ from ray.tune.trainable import TrainableUtil
 from ray.tune.trial import Trial, Checkpoint, Location
 from ray.tune.trial_executor import TrialExecutor
 from ray.tune.utils import warn_if_slow
-
+import numpy as np
 logger = logging.getLogger(__name__)
 
 RESOURCE_REFRESH_PERIOD = 0.5  # Refresh resources every 500 ms
@@ -176,7 +176,15 @@ class RayTrialExecutor(TrialExecutor):
             reuse_allowed = checkpoint is not None or trial.has_checkpoint()
             runner = self._setup_remote_runner(trial, reuse_allowed)
         trial.set_runner(runner)
-        self.restore(trial, checkpoint)
+        if trial.warmstart_path and (checkpoint is None or checkpoint.value is None):
+            # no checkpoint to restore (the trial is just now starting)
+            # load weights from warmstart
+            rand_index = np.random.choice(len(trial.warmstart_path), size=1)[0]
+            rand_warmstart = trial.warmstart_path[rand_index]
+            logger.debug("Trial %s: Warmstarting with %s", trial, rand_warmstart)
+            self.restore(trial, rand_warmstart)
+        else:
+            self.restore(trial, checkpoint)
         self.set_status(trial, Trial.RUNNING)
 
         previous_run = self._find_item(self._paused, trial)
@@ -233,7 +241,7 @@ class RayTrialExecutor(TrialExecutor):
             trial (Trial): Trial to be started.
             checkpoint (Checkpoint): A Python object or path storing the state
                 of trial.
-        """
+            """
         self._commit_resources(trial.resources)
         try:
             self._start_trial(trial, checkpoint)

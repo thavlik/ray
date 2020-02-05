@@ -86,6 +86,7 @@ def run(run_or_experiment,
         export_formats=None,
         max_failures=0,
         restore=None,
+        warmstart=None,
         search_alg=None,
         scheduler=None,
         with_server=False,
@@ -176,6 +177,9 @@ def run(run_or_experiment,
             Setting to 0 will disable retries. Defaults to 3.
         restore (str): Path to checkpoint. Only makes sense to set if
             running 1 trial. Defaults to None.
+        warmstart (str|list): Path(s) to checkpoint(s). Used to initialize
+            weights for new trials from a checkpoint. Specifying a list of
+            checkpoints causes them to be sampled randomly. Defaults to None.
         search_alg (SearchAlgorithm): Search Algorithm. Defaults to
             BasicVariantGenerator.
         scheduler (TrialScheduler): Scheduler for executing
@@ -270,6 +274,7 @@ def run(run_or_experiment,
                 export_formats=export_formats,
                 max_failures=max_failures,
                 restore=restore,
+                warmstart=warmstart,
                 sync_function=sync_function)
     else:
         logger.debug("Ignoring some parameters passed into tune.run.")

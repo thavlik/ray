@@ -89,6 +89,7 @@ class Experiment:
                  export_formats=None,
                  max_failures=0,
                  restore=None,
+                 warmstart=None,
                  repeat=None,
                  trial_resources=None,
                  sync_function=None):
@@ -135,6 +136,15 @@ class Experiment:
 
         _raise_on_durable(self._run_identifier, sync_to_driver, upload_dir)
 
+        if warmstart:
+            if restore:
+                raise ValueError('restore cannot be used with warmstart')
+            if isinstance(warmstart, str):
+                warmstart = [warmstart]
+            elif not isinstance(warmstart, list):
+                raise ValueError("Provided warmstart must be string or list of strings")
+            warmstart = [os.path.abspath(os.path.expanduser(path))
+                         for path in warmstart]
         spec = {
             "run": self._run_identifier,
             "stop": stopping_criteria,
@@ -156,7 +166,8 @@ class Experiment:
             "export_formats": export_formats or [],
             "max_failures": max_failures,
             "restore": os.path.abspath(os.path.expanduser(restore))
-            if restore else None
+            if restore else None,
+            "warmstart": warmstart,
         }
         self.spec = spec
 
