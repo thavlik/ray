@@ -182,7 +182,7 @@ class RayTrialExecutor(TrialExecutor):
             rand_index = np.random.choice(len(trial.warmstart_path), size=1)[0]
             rand_warmstart = trial.warmstart_path[rand_index]
             logger.debug("Trial %s: Warmstarting with %s", trial, rand_warmstart)
-            self.restore(trial, rand_warmstart)
+            self.restore(trial, Checkpoint(Checkpoint.PERSISTENT, rand_warmstart))
         else:
             self.restore(trial, checkpoint)
         self.set_status(trial, Trial.RUNNING)
