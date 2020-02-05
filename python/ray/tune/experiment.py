@@ -135,6 +135,14 @@ class Experiment:
 
         _raise_on_durable(self._run_identifier, sync_to_driver, upload_dir)
 
+        if restore:
+            if isinstance(restore, str):
+                restore = [restore]
+            elif not isinstance(restore, list):
+                raise ValueError(
+                    "Provided restore value must be string or list of strings")
+            restore = [os.path.abspath(os.path.expanduser(path))
+                       for path in restore]
         spec = {
             "run": self._run_identifier,
             "stop": stopping_criteria,
@@ -155,8 +163,7 @@ class Experiment:
             "checkpoint_score_attr": checkpoint_score_attr,
             "export_formats": export_formats or [],
             "max_failures": max_failures,
-            "restore": os.path.abspath(os.path.expanduser(restore))
-            if restore else None
+            "restore": restore,
         }
         self.spec = spec
 

@@ -8,7 +8,7 @@ import time
 import tempfile
 import os
 from numbers import Number
-from ray.tune import TuneError
+from ray.tune import TuneError, choice
 from ray.tune.checkpoint_manager import Checkpoint, CheckpointManager
 from ray.tune.durable_trainable import DurableTrainable
 from ray.tune.logger import pretty_print, UnifiedLogger
@@ -134,7 +134,7 @@ class Trial:
                  keep_checkpoints_num=None,
                  checkpoint_score_attr=TRAINING_ITERATION,
                  export_formats=None,
-                 restore_path=None,
+                 restore_paths=None,
                  trial_name_creator=None,
                  loggers=None,
                  sync_to_driver_fn=None,
@@ -204,6 +204,7 @@ class Trial:
         self.checkpoint_manager = CheckpointManager(
             keep_checkpoints_num, checkpoint_score_attr,
             checkpoint_deleter(str(self), self.runner))
+        restore_path = choice(restore_paths) if restore_paths else None
         checkpoint = Checkpoint(Checkpoint.PERSISTENT, restore_path)
         self.checkpoint_manager.newest_persistent_checkpoint = checkpoint
 
